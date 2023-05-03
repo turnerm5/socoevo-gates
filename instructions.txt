@@ -1,0 +1,57 @@
+Can you please provide the code for a page using the D3.js library for a bar chart, driven by two CSV files? It should be split into HTML, CSS, and JS files. The goal of the bar chart is to show the number of narrowbody and widebody gates available at an airport during different stages of construction. 
+
+The first CSV file (gates.csv) will have four columns: Gate, Max Aircraft, Widebody, Narrowbody. In each row, it will say the name of the gate, the name of the max aircraft, and the number of widebody and narrowbody aircraft it can accommodate.
+
+Here's an example of what that looks like:
+
+Gate,Max Aircraft (ADG),Widebody,Narrowbody
+S1,B777-200LR,1,
+S1A,B737-900W,,1
+S1B,B737-900W,,1
+S2,B737-900W,,1
+S3,B777-200ER,1,
+
+The second CSV file (phases.csv) will have a variable number of columns for each phase: Gate, Current, Phase 1, Phase 2, Phase 3, etc. Each row will say the gate name, and then have an "x" if that gate is impacted during construction in that phase.
+
+Here's an example of what that looks like:
+
+Gate,Current,Phase 1,Phase 2,Phase 3,Phase 4,Phase 5
+S1,,x,,,,
+S1A,,x,,,,
+S1B,,x,,,,
+S2,,,x,,,
+S3,,,x,,,
+
+The app should provide a stacked bar chart that shows each phase, and then the number of narrowbody and widebody gates that are available during that phase. Essentially, for each phase, sum up the number of gates that are available (Don't have a "x" in that phase) and then show those stacked (narrowbody + widebody)
+
+
+
+
+
+
+Thanks! Now I'd like to add another set of squares that I can click on and off for "Remote Gating". 
+
+This should be new squares in a new div. Each square should be 80 pixels wide. The squares should driven by a csv called "remote-gating.csv". The columns and data types of that CSV are:
+
+Gate
+Widebody Gates Inbound (integers)
+Widebody Gates Outbound (integers)
+Narrowbody Gates Inbound (integers)
+Narrowbody Gates Outbound (integers)
+Challenges (text)
+Opportunities (text)
+
+The rows are the remote gates and their respective data points.
+
+Here is an example of that data:
+
+Remote Gate,Widebody Gates Outbound,Widebody Gates Inbound,Narrowbody Gates Outbound,Narrowbody Gates Inbound,Challenges,Opportunities
+Cargo 7,2,2,,,Outbound staging for passengers; fueling apron modifications,Close proximity to SSAT and A Bus Gates
+
+The squares for these should toggle on click, not just changing on hover. 
+
+The bar charts should be revised to two 
+
+When toggling a square on, it should add its respective widebody and narrowbody gates to the bar chart and tooltips.
+
+For the tooltip, it should be revised to narrow
