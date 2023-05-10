@@ -13,15 +13,28 @@ body {
 }
 
 #chart {
-    width: 100%;
-    height: 500px;
+    width: 80%;
     margin: 0 auto;
+    background-color: antiquewhite;
 }
 
 #grid {
-    width: 100%;
-    height: 500px;
+    width: 80%;
     margin: 0 auto;
+    background-color: bisque;
+}
+
+
+#remote-grid {
+    width: 80%;
+    margin: 0 auto;
+    background-color: darkgray;
+}
+
+#challenges-opportunities{
+    width: 20%;
+    margin: 0 auto;
+    background-color: aquamarine;
 }
 
 .axis text {

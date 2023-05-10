@@ -2,7 +2,11 @@
 d3.csv("gates.csv").then(gatesData => {
     d3.csv("phases.csv").then(phasesData => {
         d3.csv("remote-gating.csv").then(remoteGatingData => {
-        
+    
+            //
+            // VARIABLE STORAGE
+            //
+
             //
             // CHART SETUP
             //
@@ -20,16 +24,7 @@ d3.csv("gates.csv").then(gatesData => {
                 .rangeRound([height, 0]);
             const xAxis = d3.axisBottom(x);
             const yAxis = d3.axisLeft(y);
-
-            // Create the SVG element and chart container
-            const svg = d3.select("#chart")
-                .append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-
-
+            
             //
             // DATA PROCESSING
             //
@@ -46,7 +41,7 @@ d3.csv("gates.csv").then(gatesData => {
             // Create a map to store remote gating data for easy lookup
             // The key should be the gate
             // The values should be widebodyInbound, widebodyOutbound, narrowbodyInbound, narrowbodyOutbound, challenges, opportunities
-            const remoteGatingMap = new Map();
+            const remoteGatesMap = new Map();
             remoteGatingData.forEach(gate => {
 
                 let widebodyInbound = 0;
@@ -56,7 +51,7 @@ d3.csv("gates.csv").then(gatesData => {
                 let challenges = "";
                 let opportunities = "";
 
-                remoteGatingMap.set(gate.Gate, {
+                remoteGatesMap.set(gate.Gate, {
                     widebodyInbound: +gate.WidebodyInbound || 0,
                     widebodyOutbound: +gate.WidebodyOutbound || 0,
                     narrowbodyInbound: +gate.NarrowbodyInbound || 0,
@@ -106,19 +101,28 @@ d3.csv("gates.csv").then(gatesData => {
             });
 
             //
-            // AXES
+            // CHART
             //
 
             // Define domains for the scales
             x.domain(phasesMap.map(d => d.phase));
             y.domain([0, d3.max(phasesMap, d => d.widebodyInbound + d.narrowbodyInbound + d.widebodyOutbound + d.narrowbodyOutbound) / 2 + 5]);
 
+            // Create an SVG container targeting the "chart" ID
+            const chartSvg = d3.select("#chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
             // Add axes to the chart
-            svg.append("g")
+            chartSvg.append("g")
                 .attr("class", "axis")
                 .attr("transform", `translate(0,${height})`)
                 .call(xAxis);
-            svg.append("g")
+            
+            chartSvg.append("g")
                 .attr("class", "axis")
                 .call(yAxis)
                 .append("text")
@@ -128,16 +132,12 @@ d3.csv("gates.csv").then(gatesData => {
                 .style("text-anchor", "end")
                 .text("Number of Gates");
 
-            //
-            // BARS
-            //
-
             // Create and position the bars for the chart
-            const bar = svg.selectAll(".bar")
-            .data(phasesMap)
-            .enter().append("g")
-            .attr("class", "bar")
-            .attr("transform", d => `translate(${x(d.phase)},0)`);
+            const bar = chartSvg.selectAll(".bar")
+                .data(phasesMap)
+                .enter().append("g")
+                .attr("class", "bar")
+                .attr("transform", d => `translate(${x(d.phase)},0)`);
 
             // Define the bar width and padding
             const barWidth = x.bandwidth() / 2;
@@ -145,69 +145,69 @@ d3.csv("gates.csv").then(gatesData => {
 
             // Add the widebody inbound section of the bars
             bar.append("rect")
-            .attr("y", d => y(d.widebodyInbound))
-            .attr("height", d => height - y(d.widebodyInbound))
-            .attr("width", barWidth)
-            .attr("fill", "steelblue")
-            .attr("class", "widebody-inbound");
+                .attr("y", d => y(d.widebodyInbound))
+                .attr("height", d => height - y(d.widebodyInbound))
+                .attr("width", barWidth)
+                .attr("fill", "steelblue")
+                .attr("class", "widebody-inbound");
 
             // Add the narrowbody inbound section of the bars
             bar.append("rect")
-            .attr("y", d => y(d.widebodyInbound + d.narrowbodyInbound)) // Adjust the starting y-coordinate
-            .attr("height", d => height - y(d.narrowbodyInbound))
-            .attr("width", barWidth)
-            .attr("fill", "orange")
-            .attr("class", "narrowbody-inbound");
+                .attr("y", d => y(d.widebodyInbound + d.narrowbodyInbound)) // Adjust the starting y-coordinate
+                .attr("height", d => height - y(d.narrowbodyInbound))
+                .attr("width", barWidth)
+                .attr("fill", "orange")
+                .attr("class", "narrowbody-inbound");
 
             // Add the widebody outbound section of the bars
             bar.append("rect")
-            .attr("x", barWidth + padding)
-            .attr("y", d => y(d.widebodyOutbound))
-            .attr("height", d => height - y(d.widebodyOutbound))
-            .attr("width", barWidth)
-            .attr("fill", "steelblue")
-            .attr("class", "widebody-outbound");
+                .attr("x", barWidth + padding)
+                .attr("y", d => y(d.widebodyOutbound))
+                .attr("height", d => height - y(d.widebodyOutbound))
+                .attr("width", barWidth)
+                .attr("fill", "steelblue")
+                .attr("class", "widebody-outbound");
 
             // Add the narrowbody outbound section of the bars
             bar.append("rect")
-            .attr("x", barWidth + padding)
-            .attr("y", d => y(d.widebodyOutbound + d.narrowbodyOutbound)) // Adjust the starting y-coordinate
-            .attr("height", d => height - y(d.narrowbodyOutbound))
-            .attr("width", barWidth)
-            .attr("fill", "orange")
-            .attr("class", "narrowbody-outbound");
+                .attr("x", barWidth + padding)
+                .attr("y", d => y(d.widebodyOutbound + d.narrowbodyOutbound)) // Adjust the starting y-coordinate
+                .attr("height", d => height - y(d.narrowbodyOutbound))
+                .attr("width", barWidth)
+                .attr("fill", "orange")
+                .attr("class", "narrowbody-outbound");
 
             // Add widebody label to the chart
-            svg.append("text")
-            .attr("x", width - 20)
-            .attr("y", 20)
-            .attr("text-anchor", "end")
-            .style("fill", "steelblue")
-            .text("Widebody");
+            chartSvg.append("text")
+                .attr("x", width - 20)
+                .attr("y", 20)
+                .attr("text-anchor", "end")
+                .style("fill", "steelblue")
+                .text("Widebody");
 
             // Add narrowbody inbound label to the chart
-            svg.append("text")
-            .attr("x", width - 20)
-            .attr("y", 40)
-            .attr("text-anchor", "end")
-            .style("fill", "orange")
-            .text("Narrowbody");
+            chartSvg.append("text")
+                .attr("x", width - 20)
+                .attr("y", 40)
+                .attr("text-anchor", "end")
+                .style("fill", "orange")
+                .text("Narrowbody");
 
             // Add Inbound label at the top of the bars
             bar.append("text")
-            .attr("x", barWidth / 2)
-            .attr("y", d => y(d.widebodyInbound + d.narrowbodyInbound) - 5)
-            .attr("text-anchor", "middle")
-            .style("font-size", "10px")
-            .text("Inbound");
+                .attr("x", barWidth / 2)
+                .attr("y", d => y(d.widebodyInbound + d.narrowbodyInbound) - 5)
+                .attr("text-anchor", "middle")
+                .style("font-size", "10px")
+                .text("Inbound");
 
             // Add Outbound label at the top of the bars
             bar.append("text")
-            .attr("x", barWidth + padding + (barWidth / 2))
-            .attr("y", d => y(d.widebodyOutbound + d.narrowbodyOutbound) - 5)
-            .attr("text-anchor", "middle")
-            .style("font-size", "10px")
-            .text("Outbound");
+                .attr("x", barWidth + padding + (barWidth / 2))
+                .attr("y", d => y(d.widebodyOutbound + d.narrowbodyOutbound) - 5)
+                .attr("text-anchor", "middle")
+                .style("font-size", "10px")
+                .text("Outbound");
 
             //
             // CURRENT PHASE LINES
@@ -219,7 +219,7 @@ d3.csv("gates.csv").then(gatesData => {
             const currentNarrowbodyJets = currentPhase.narrowbodyInbound;
 
             // Add blue dotted line for Current widebody jet number
-            svg.append("line")
+            chartSvg.append("line")
                 .attr("x1", 0)
                 .attr("x2", width)
                 .attr("y1", y(currentWidebodyJets))
@@ -229,7 +229,7 @@ d3.csv("gates.csv").then(gatesData => {
                 .attr("stroke-dasharray", "5,5");
 
             // Add orange dotted line for Current narrowbody jet number
-            svg.append("line")
+            chartSvg.append("line")
                 .attr("x1", 0)
                 .attr("x2", width)
                 .attr("y1", y(currentNarrowbodyJets + currentWidebodyJets))
@@ -238,19 +238,17 @@ d3.csv("gates.csv").then(gatesData => {
                 .attr("stroke-width", 2)
                 .attr("stroke-dasharray", "5,5");
 
-
             //
             // TOOLTIP
             //
 
             // Tooltip for hover information
             const tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
-        
+                .attr("class", "tooltip")
+                .style("opacity", 0);
 
-            //   
-            // INTERACTIVITY
+            //
+            // BAR INTERACTIVITY
             //
 
             // Add a property to store the active state of each phase bar
@@ -302,28 +300,28 @@ d3.csv("gates.csv").then(gatesData => {
                 }
             });
 
-
             // Show tooltip, update gate colors, and highlight inactive gates on mouseover
             bar.on("mouseover", function (event, d) {
+                            
                 // Show tooltip
                 tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
+                .duration(200)
+                .style("opacity", .9);
 
-                    tooltip.html(`Widebody Inbound: ${d.widebodyInbound}<br>Narrowbody Inbound: ${d.narrowbodyInbound}<br>Widebody Outbound: ${d.widebodyOutbound}<br>Narrowbody Outbound: ${d.narrowbodyOutbound}`)
-                    .style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 30) + "px");
+                tooltip.html(`Widebody Inbound: ${d.widebodyInbound}<br>Narrowbody Inbound: ${d.narrowbodyInbound}<br>Widebody Outbound: ${d.widebodyOutbound}<br>Narrowbody Outbound: ${d.narrowbodyOutbound}`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 30) + "px");
             })
             .on("mousemove", function (event, d) {
                 tooltip
-                    .style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 30) + "px");
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 30) + "px");
             })
             .on("mouseout", function (d) {
                 // Hide tooltip
                 tooltip.transition()
-                    .duration(500)
-                    .style("opacity", 0);
+                .duration(500)
+                .style("opacity", 0);
             });
 
             //
@@ -334,15 +332,17 @@ d3.csv("gates.csv").then(gatesData => {
             const gatesList = gatesData.map(gate => gate.Gate);
             const gridWidth = 1000;
             const gridSize = 80;
-            const gridHeight = Math.ceil(gatesList.length / 10) * (gridSize + 10);
+            const gridHeight = Math.floor(gatesList.length / 10) * (gridSize + 10) + 50;
             const gridMargin = { top: 20, right: 20, bottom: 30, left: 40 };
 
-            // Create the SVG element and grid container
+            // Create an SVG container targeting the "grid" ID
             const gridSvg = d3.select("#grid")
                 .append("svg")
+                .data(gatesMap)
                 .attr("width", gridWidth + gridMargin.left + gridMargin.right)
                 .attr("height", gridHeight + gridMargin.top + gridMargin.bottom)
                 .append("g")
+                .attr("class", "gate-grid")
                 .attr("transform", `translate(${gridMargin.left},${gridMargin.top})`);
 
             // Draw the left-aligned square grid for the gates
@@ -366,6 +366,111 @@ d3.csv("gates.csv").then(gatesData => {
                     .attr("dy", ".3em")
                     .attr("fill", "white")
                     .text(gate);
+            });
+
+            //
+            // REMOTE GATE GRID
+            //  
+
+            // Prepare gates data for the grid visualization
+            const remoteGridSize = 150;
+
+            // Create the SVG element and grid container
+            const remoteGateSvg = d3.select("#remote-grid")
+                .append("svg")
+                .attr("width", gridWidth + gridMargin.left + gridMargin.right)
+                .attr("height", gridHeight + gridMargin.top + gridMargin.bottom)
+                .append("g")
+                .attr("transform", `translate(${gridMargin.left},${gridMargin.top})`);
+
+            // Create a group for each gate
+            const remoteGates = remoteGateSvg.selectAll(".remote-gate")
+                .data(Array.from(remoteGatesMap.entries()))
+                .enter().append("g")
+                .attr("class", "remote-gate");
+
+            // Add the gate to the grid
+            remoteGates.each(function([gate, data], index) {
+                const row = Math.floor(index / 10);
+                const col = index % 10;
+
+                const remoteGate = d3.select(this);
+
+                remoteGate.append("rect")
+                    .attr("x", col * (remoteGridSize + 10))
+                    .attr("y", row * (remoteGridSize + 10))
+                    .attr("width", remoteGridSize)
+                    .attr("height", remoteGridSize)
+                    .attr("fill", "green")
+                    .attr("stroke", "white")
+                    .attr("id", `gate-${gate}`);
+
+                // Add label for the gate
+                remoteGate.append("text")
+                    .attr("x", col * (remoteGridSize + 10) + remoteGridSize / 2)
+                    .attr("y", row * (remoteGridSize + 10) + remoteGridSize / 2 - 50)
+                    .attr("text-anchor", "middle")
+                    .attr("dy", ".3em")
+                    .attr("fill", "white")
+                    .text(gate);
+
+                // Add widebody, narrowbody gate counts as a label
+                remoteGate.append("text")
+                    .attr("x", col * (remoteGridSize + 10) + remoteGridSize / 2)
+                    .attr("y", row * (remoteGridSize + 10) + remoteGridSize / 2 - 10)
+                    .attr("text-anchor", "middle")
+                    .attr("dy", ".3em")
+                    .attr("fill", "white")
+                    .text(`Inbound`);
+
+                // Add widebody, narrowbody gate counts as a label
+                remoteGate.append("text")
+                    .attr("x", col * (remoteGridSize + 10) + remoteGridSize / 2)
+                    .attr("y", row * (remoteGridSize + 10) + remoteGridSize / 2 + 10)
+                    .attr("text-anchor", "middle")
+                    .attr("dy", ".3em")
+                    .attr("fill", "white")
+                    .text(`W: ${remoteGatesMap.get(gate).widebodyInbound} N: ${remoteGatesMap.get(gate).narrowbodyInbound}`);
+
+                // Add widebody, narrowbody gate counts as a label
+                remoteGate.append("text")
+                    .attr("x", col * (remoteGridSize + 10) + remoteGridSize / 2)
+                    .attr("y", row * (remoteGridSize + 10) + remoteGridSize / 2 + 35)
+                    .attr("text-anchor", "middle")
+                    .attr("dy", ".3em")
+                    .attr("fill", "white")
+                    .text(`Outbound`);
+
+                // Add widebody, narrowbody gate counts as a label
+                remoteGate.append("text")
+                    .attr("x", col * (remoteGridSize + 10) + remoteGridSize / 2)
+                    .attr("y", row * (remoteGridSize + 10) + remoteGridSize / 2 + 55)
+                    .attr("text-anchor", "middle")
+                    .attr("dy", ".3em")
+                    .attr("fill", "white")
+                    .text(`W: ${remoteGatesMap.get(gate).widebodyOutbound} N: ${remoteGatesMap.get(gate).narrowbodyOutbound}`);
+            
+                // Get the inbound and outbound data from the clicked remote gate to add to the bar chart
+                remoteGate.on("click", function(event, d) {
+                    // Store the data for the clicked remote gate
+                    var widebodyInbound = d[1].widebodyInbound;
+                    var widebodyOutbound = d[1].widebodyOutbound;
+                    var narrowbodyInbound = d[1].narrowbodyInbound;
+                    var narrowbodyOutbound = d[1].narrowbodyOutbound;
+
+                    // Check to see if any bars are active on the bar chart
+                    var activeBars = false;
+                    bar.each(function(d) {
+                        if (d.active) {
+                            activeBars = true;
+                        }
+                    });
+
+                    // If no bars are active, do nothing
+                    if (!activeBars) {
+                        return;
+                    }
+                });
             });
         });
     });
